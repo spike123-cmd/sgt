@@ -1,0 +1,10 @@
+# ==============================================================================
+# Agendamento Cron para Robô de Coleta e Ingestão do SGT CNI
+# Para instalar na VPS, execute: crontab -e e cole a linha abaixo
+# ==============================================================================
+
+# Execução diária às 23:00 (segunda a sexta ou todos os dias)
+0 23 * * * /bin/bash /var/www/sgt-dashboard/automacao/executar_pipeline.sh >> /var/www/sgt-dashboard/automacao/logs/cron.log 2>&1
+
+# Opcional: Execução complementar matinal às 06:00
+0 6 * * 1-5 /bin/bash /var/www/sgt-dashboard/automacao/executar_pipeline.sh >> /var/www/sgt-dashboard/automacao/logs/cron.log 2>&1

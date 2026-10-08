@@ -1,0 +1,6 @@
+{
+  "name": "SGT Analytics & Gestão Executiva",
+  "description": "Painel de monitoramento e automação dos relatórios do SGT CNI / SENAI-MG com gestão operacional, avanço e pipeline automatizado.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

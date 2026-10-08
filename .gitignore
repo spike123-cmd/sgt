@@ -1,0 +1,10 @@
+node_modules/
+.next/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+sgt-dashboard/automacao/.env
+sgt-dashboard/automacao/downloads/
+sgt-dashboard/automacao/logs/
