@@ -8,3 +8,4 @@ coverage/
 sgt-dashboard/automacao/.env
 sgt-dashboard/automacao/downloads/
 sgt-dashboard/automacao/logs/
+.vercel

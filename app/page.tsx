@@ -528,10 +528,10 @@ export default function SgtDashboardPage() {
     };
   }, [dadosFiltrados, periodoEfetivo]);
 
-  // Mapa de Calor Consultores
+  // Mapa de Calor Consultores (respeita os filtros ativos: quando há consultores selecionados ou filtros, exibe apenas os filtrados)
   const mapaCalor = useMemo(() => {
     const mapa: Record<string, { total: number; execucao: number; concluidos: number; horas: number }> = {};
-    dados.forEach(d => {
+    dadosFiltrados.forEach(d => {
       const cons = d.consultor && d.consultor !== 'Não Atribuído' ? d.consultor : 'Não Atribuído';
       if (!mapa[cons]) {
         mapa[cons] = { total: 0, execucao: 0, concluidos: 0, horas: 0 };
@@ -545,7 +545,7 @@ export default function SgtDashboardPage() {
     return Object.entries(mapa)
       .map(([nome, info]) => ({ nome, ...info }))
       .sort((a, b) => b.execucao - a.execucao || b.horas - a.horas);
-  }, [dados]);
+  }, [dadosFiltrados]);
 
   // Resetar Filtros
   const resetarFiltros = () => {
@@ -1493,7 +1493,11 @@ export default function SgtDashboardPage() {
                 <div>
                   <h3 className="text-base font-bold flex items-center gap-2">
                     <Flame className="w-5 h-5 text-amber-500" />
-                    <span>Ocupação & Carga dos 38 Consultores Técnicos</span>
+                    <span>
+                      {consultoresSelecionados.length > 0
+                        ? ('Ocupação & Carga: ' + String(mapaCalor.length) + ' Consultor(es) Selecionado(s)')
+                        : ('Ocupação & Carga dos Consultores Técnicos (' + String(mapaCalor.length) + ')')}
+                    </span>
                   </h3>
                   <p className="text-xs text-slate-500 mt-0.5">
                     Classificação por projetos em execução simultânea: 🟢 Normal (1-2) • 🟡 Moderado (3-4) • 🔴 Crítico (5+)
