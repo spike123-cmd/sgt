@@ -380,13 +380,13 @@ export default function SgtDashboardPage() {
     }
   };
 
-  // Lista de Consultores únicos
+  // Lista de Consultores únicos em ordem alfabética rigorosa (pt-BR com suporte a acentos)
   const listaConsultores = useMemo(() => {
     const nomes = new Set<string>();
     dados.forEach(d => {
       if (d.consultor && d.consultor !== 'Não Atribuído') nomes.add(d.consultor);
     });
-    return Array.from(nomes).sort();
+    return Array.from(nomes).sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }));
   }, [dados]);
 
   // Contagem de atendimentos por consultor (na base total)
@@ -439,19 +439,30 @@ export default function SgtDashboardPage() {
     });
   }, [dados, filtroStatus, filtroAuditoria, consultoresSelecionados, periodoEfetivo, filtroFaixa, busca]);
 
-  // Dados Ordenados
+  // Dados Ordenados: quando múltiplos consultores são filtrados (ou agrupados), exibe tudo de um consultor em ordem alfabética antes de passar para o próximo
   const dadosOrdenados = useMemo(() => {
     return [...dadosFiltrados].sort((a, b) => {
+      // Se houver mais de 1 consultor selecionado no filtro, agrupa primeiro todos os atendimentos do mesmo consultor
+      if (consultoresSelecionados.length > 1) {
+        const consA = a.consultor || '';
+        const consB = b.consultor || '';
+        const compCons = consA.localeCompare(consB, 'pt-BR', { sensitivity: 'base' });
+        if (compCons !== 0) {
+          return compCons;
+        }
+      }
+
+      // Ordenação pela coluna solicitada (seja avanço, id, saldo, horas, empresa, etc.)
       const vA = a[ordem.campo] ?? '';
       const vB = b[ordem.campo] ?? '';
       if (typeof vA === 'number' && typeof vB === 'number') {
         return ordem.asc ? vA - vB : vB - vA;
       }
       return ordem.asc
-        ? String(vA).localeCompare(String(vB))
-        : String(vB).localeCompare(String(vA));
+        ? String(vA).localeCompare(String(vB), 'pt-BR', { sensitivity: 'base' })
+        : String(vB).localeCompare(String(vA), 'pt-BR', { sensitivity: 'base' });
     });
-  }, [dadosFiltrados, ordem]);
+  }, [dadosFiltrados, ordem, consultoresSelecionados]);
 
   // Paginação
   const totalPaginas = Math.ceil(dadosOrdenados.length / itensPorPagina) || 1;
@@ -544,8 +555,14 @@ export default function SgtDashboardPage() {
 
     return Object.entries(mapa)
       .map(([nome, info]) => ({ nome, ...info }))
-      .sort((a, b) => b.execucao - a.execucao || b.horas - a.horas);
-  }, [dadosFiltrados]);
+      .sort((a, b) => {
+        // Se houver consultores selecionados no filtro, exibe em ordem alfabética (A-Z)
+        if (consultoresSelecionados.length > 0) {
+          return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' });
+        }
+        return b.execucao - a.execucao || b.horas - a.horas;
+      });
+  }, [dadosFiltrados, consultoresSelecionados]);
 
   // Resetar Filtros
   const resetarFiltros = () => {
@@ -1293,7 +1310,7 @@ export default function SgtDashboardPage() {
                 <Users className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                 Pessoas selecionadas ({consultoresSelecionados.length}):
               </span>
-              {consultoresSelecionados.map(nome => (
+              {[...consultoresSelecionados].sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })).map(nome => (
                 <span
                   key={nome}
                   className="inline-flex items-center gap-1 pl-2 pr-1.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-xs"
